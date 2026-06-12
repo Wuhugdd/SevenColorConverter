@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -96,12 +97,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            return android.graphics.ImageDecoder.createBitmap(
-                android.graphics.ImageDecoder.createSource(getContentResolver(), uri));
-        } else {
-            return android.provider.MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-        }
+        InputStream is = getContentResolver().openInputStream(uri);
+        Bitmap bmp = android.graphics.BitmapFactory.decodeStream(is);
+        if (is != null) is.close();
+        return bmp;
     }
 
     private void saveBmp(Bitmap bitmap) {
