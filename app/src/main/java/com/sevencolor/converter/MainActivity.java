@@ -104,32 +104,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveBmp(Bitmap bitmap) {
-        String filename = "EPD_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + ".bmp";
+        String filename = "EPD_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + ".png";
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Android 10+ 用 MediaStore
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
-                values.put(MediaStore.Images.Media.MIME_TYPE, "image/bmp");
-                values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+            // 保存到 App 私有 Pictures 目录，不需要任何权限
+            File dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            if (dir != null && !dir.exists()) dir.mkdirs();
+            File file = new File(dir, filename);
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
 
-                Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                if (uri != null) {
-                    OutputStream os = getContentResolver().openOutputStream(uri);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
-                    if (os != null) os.close();
-                    tvStatus.setText("已保存到 Downloads/" + filename);
-                }
-            } else {
-                // Android 9 及以下直接写 Downloads
-                File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                File file = new File(dir, filename);
-                FileOutputStream fos = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                fos.close();
-                tvStatus.setText("已保存到 " + file.getAbsolutePath());
-            }
+            tvStatus.setText("已保存: " + file.getAbsolutePath());
             Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(this, "保存失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
