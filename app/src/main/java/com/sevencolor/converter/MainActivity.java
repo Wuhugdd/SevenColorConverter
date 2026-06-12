@@ -97,8 +97,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            return androidx.core.graphics.ImageDecoder.createBitmap(
-                androidx.core.graphics.ImageDecoder.createSource(getContentResolver(), uri));
+            return android.graphics.ImageDecoder.createBitmap(
+                android.graphics.ImageDecoder.createSource(getContentResolver(), uri));
         } else {
             return android.provider.MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
         }
